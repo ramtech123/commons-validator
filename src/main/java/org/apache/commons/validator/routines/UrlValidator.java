@@ -104,6 +104,13 @@ public class UrlValidator implements Serializable {
     public static final long ALLOW_LOCAL_URLS = 1 << 3; // CHECKSTYLE IGNORE MagicNumber
 
     /**
+     * Enabling this option disables validation of top-level domain against
+     * generic TLDs during authority validation. Only the syntax validation
+     * of the domain name will be done.
+     */
+    public static final long ALLOW_DOMAINS_WITH_VALID_SYNTAX = 1 << 4;
+
+    /**
      * Protocol scheme (e.g. http, ftp, https).
      */
     private static final String SCHEME_REGEX = "^\\p{Alpha}[\\p{Alnum}\\+\\-\\.]*";
@@ -436,7 +443,10 @@ public class UrlValidator implements Serializable {
             final String hostLocation = authorityMatcher.group(PARSE_AUTHORITY_HOST_IP);
             // check if authority is hostname or IP address:
             // try a hostname first since that's much more likely
-            if (!this.domainValidator.isValid(hostLocation)) {
+            boolean isValidDomain = isOn(ALLOW_DOMAINS_WITH_VALID_SYNTAX)
+                    && this.domainValidator.isValidDomainSyntax(hostLocation)
+                    || this.domainValidator.isValid(hostLocation);
+            if (!isValidDomain) {
                 // try an IPv4 address
                 final InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
                 if (!inetAddressValidator.isValidInet4Address(hostLocation)) {

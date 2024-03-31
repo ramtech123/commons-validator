@@ -2241,9 +2241,15 @@ public class DomainValidator implements Serializable {
         return (arrayContains(COUNTRY_CODE_TLDS, key) || arrayContains(myCountryCodeTLDsPlus, key)) && !arrayContains(myCountryCodeTLDsMinus, key);
     }
 
-    // package protected for unit test access
-    // must agree with isValid() above
-    final boolean isValidDomainSyntax(String domain) {
+    /**
+     * Returns true if the specified <code>String</code> parses
+     * as having a valid domain name syntax, the top-level domain need not
+     * be a recognized value.
+     * The parsing is case-insensitive.
+     * @param domain the parameter to check for domain name syntax
+     * @return true if the parameter has a valid domain name syntax
+     */
+    public boolean isValidDomainSyntax(String domain) {
         if (domain == null) {
             return false;
         }
@@ -2258,6 +2264,7 @@ public class DomainValidator implements Serializable {
         final String[] groups = domainRegex.match(domain);
         return groups != null && groups.length > 0 || hostnameRegex.isValid(domain);
     }
+
     /**
      * Returns true if the specified <code>String</code> matches any
      * IANA-defined generic top-level domain. Leading dots are ignored
